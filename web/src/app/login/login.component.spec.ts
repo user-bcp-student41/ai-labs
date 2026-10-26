@@ -86,6 +86,34 @@ describe('LoginComponent characterization', () => {
     expect(component.busy).toBe(false);
   });
 
+  it('shows the network error when the authentication service is unavailable', async () => {
+    component.username = 'student';
+    component.password = 'Workshop123!';
+    vi.mocked(axios.post).mockRejectedValue(new Error('Network Error'));
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    await component.login();
+
+    expect(normalizedMessage(component.message)).toBe('No se pudo autenticar a student.\nNetwork Error');
+    expect(component.busy).toBe(false);
+    expect(storage.has('workshop_token')).toBe(false);
+    consoleError.mockRestore();
+  });
+
+  it('shows the configured request timeout error', async () => {
+    component.username = 'student';
+    component.password = 'Workshop123!';
+    vi.mocked(axios.post).mockRejectedValue(new Error('timeout of 5000ms exceeded'));
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    await component.login();
+
+    expect(normalizedMessage(component.message))
+      .toBe('No se pudo autenticar a student.\ntimeout of 5000ms exceeded');
+    expect(component.busy).toBe(false);
+    consoleError.mockRestore();
+  });
+
   it('shows a response-without-token message', async () => {
     component.username = 'student';
     component.password = 'Workshop123!';

@@ -95,6 +95,34 @@ describe('DashboardComponent characterization', () => {
     expect(detectChanges).toHaveBeenCalledOnce();
   });
 
+  it('keeps the session and displays an invalid-token error without redirecting', async () => {
+    storage.set('workshop_token', 'invalid-token');
+    storage.set('workshop_user', JSON.stringify({ username: 'student' }));
+    vi.mocked(axios.get).mockRejectedValue({
+      response: { status: 401, data: { detail: 'Token inválido' } }
+    });
+
+    await component.ngOnInit();
+
+    expect(component.error).toBe('Token inválido');
+    expect(storage.get('workshop_token')).toBe('invalid-token');
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(component.loading).toBe(false);
+  });
+
+  it('displays an adapter timeout error and keeps the current session', async () => {
+    storage.set('workshop_token', 'test-token');
+    storage.set('workshop_user', JSON.stringify({ username: 'student' }));
+    vi.mocked(axios.get).mockRejectedValue(new Error('timeout of 10000ms exceeded'));
+
+    await component.ngOnInit();
+
+    expect(component.error).toBe('timeout of 10000ms exceeded');
+    expect(storage.get('workshop_token')).toBe('test-token');
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(component.loading).toBe(false);
+  });
+
   it('uses a readable fallback for unknown task errors', async () => {
     storage.set('workshop_token', 'test-token');
     storage.set('workshop_user', JSON.stringify({ username: 'student' }));
