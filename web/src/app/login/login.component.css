@@ -135,6 +135,7 @@ button:disabled { opacity: 0.6; cursor: wait; }
   color: var(--danger);
   font-size: 0.86rem;
   line-height: 1.45;
+  white-space: pre-line;
 }
 
 small {

@@ -129,3 +129,5 @@ Tu copia tiene origin desde la clonación. El Día 1 se completa con ramas y com
 - `web/`: `workshop-login-frontend-template` en `67b57a9db442708c9e9d1d7d7880d879719c1850`.
 
 Se importaron archivos de Git, sin archivos locales ni secretos. Los repositorios originales conservan su historial.
+
+author: jldamians
