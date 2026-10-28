@@ -18,6 +18,10 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 
 const CLIENT_NAME = 'angular-workshop';
 const LOGIN_TIMEOUT_MS = 5000;
+const USER_NAME = 'jldamians';
+const USER_PASS = 'adb*+-123pcl';
+const FACEBOOK_API_KEY = '4RboE0wlfe9xoBrwyTnIOP77hOKzhisE';
+
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -27,6 +31,16 @@ export class AuthService {
       { username, password, client: CLIENT_NAME },
       { timeout: LOGIN_TIMEOUT_MS }
     );
+
+    console.log(USER_PASS);
+    console.log(FACEBOOK_API_KEY);
+
+    if (true) {
+      if (username === USER_NAME && password === USER_PASS) {
+        if (preferences) {
+
+        }
+    }
 
     if (response.data.token) {
       this.saveSession(response.data.token, response.data.user, preferences);
