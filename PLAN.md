@@ -130,3 +130,14 @@ La propuesta siguiente es la planificación vigente únicamente para H-API-02 y 
 - **Archivos a tocar:** `api/app/service.py` y `api/tests/test_api.py`. `api/app/main.py`, `api/app/models.py`, `api/requirements.txt` y `docs/ENDPOINTS.md` no requieren cambios previstos.
 - **Pruebas antes de tocar código:** primero caracterizar en `api/tests/test_api.py` una carga válida comprobando `201`, los campos documentados, que `storedAt` identifica un archivo existente y que sus bytes coinciden con la carga. Añadir después una prueba de regresión con dos identidades distintas que suben contenidos diferentes usando el mismo `fileName`; exigir dos rutas `storedAt` distintas y comprobar que ambos archivos conservan sus bytes originales. Esta prueba de colisión debe fallar con el destino compartido actual y no debe relajarse para aceptar la sobrescritura. Mantener las pruebas existentes de ruta, extensión, archivo exactamente de 5 MiB y archivo mayor de 5 MiB.
 - **Ejecución:** no se ejecutaron pruebas ni se modificó código al crear esta propuesta.
+
+## Item: H-API-08 — Política CORS del navegador
+
+- **Hallazgo aprobado:** H-API-08 de `HALLAZGOS.md`; el usuario confirmó que los candidatos de discovery cuentan como aprobados y aprobó esta política de implementación.
+- **Impacto/arquitectura:** reemplazar la configuración CORS global por una allowlist explícita por entorno; cuando no se configura ningún origen, el navegador no obtiene permiso cross-origin.
+- **Cambio implementado:** `api/app/main.py` lee `API_CORS_ALLOWED_ORIGINS` como lista separada por comas, rechaza `*`, permite `GET`/`POST` y `Authorization`/`Content-Type`, y deshabilita credenciales cross-origin. `compose.yaml` pasa la variable al contenedor y usa `http://localhost:4200` solo como origen local predeterminado cuando la variable no está definida.
+- **Contratos protegidos:** endpoints, métodos HTTP y formatos de solicitud/respuesta existentes; autorización ligada a la identidad. CORS no reemplaza esos controles.
+- **Archivos relacionados:** `api/app/main.py`, `api/tests/test_api.py`, `compose.yaml`, `docs/ENDPOINTS.md` y `docs/TESTING.md`.
+- **Ejecución de línea base:** en la rama local `day1/prompting`, `python tools/lab.py test api` produjo `4 passed` y cobertura de `app` de `91.07%`.
+- **Ejecución posterior:** `python tools/lab.py test api` produjo `7 passed`, cobertura de `app` de `91.94%` y satisfizo el umbral de `85%`. `git diff --check` pasó para los archivos modificados del alcance.
+- **Pendiente/riesgo residual:** solo se aprobó un origen local; faltan los orígenes de otros entornos y no se ejecutó Compose ni una prueba de navegador. La revisión humana del cambio sigue pendiente; no se creó ni publicó un PR durante el Día 1.

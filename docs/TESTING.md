@@ -266,3 +266,14 @@ La cobertura se midió con `pytest-cov`/coverage.py desde la configuración de `
 ## Pruebas propuestas
 
 Cuando se coordine JWT, agregar casos con tokens firmados distintos para comprobar firma inválida, `iss`, `aud`, expiración y aislamiento real entre dos identidades. Cuando se corrija H-API-04, agregar un test de dos usuarios que suben el mismo nombre y comprobar que el segundo no sobrescribe el primer archivo. Estas pruebas no se reportan como ejecutadas ni aprobadas.
+
+## H-API-08 — Política CORS
+
+| ejecución | comando | resultado |
+|---|---|---|
+| Línea base en `day1/prompting` | `python tools/lab.py test api` | `4 passed`; cobertura global de `app`: `91.07%`. |
+| Después del cambio | `python tools/lab.py test api` | `7 passed`; cobertura global de `app`: `91.94%`, superior al umbral de `85%`. |
+
+Las tres pruebas nuevas verifican que el preflight se deniegue si no hay orígenes configurados, que el origen local `http://localhost:4200` y otro origen explícitamente configurado reciban permiso con `GET`/`POST` y los encabezados `Authorization`/`Content-Type`, que un origen no listado y un método no permitido se rechacen en preflight, y que las respuestas reales solo incluyan `Access-Control-Allow-Origin` para un origen autorizado. También verifican que la configuración `*` falle al crear la aplicación y que no se habiliten credenciales cross-origin.
+
+La ejecución final mostró 15 advertencias de deprecación de `FastAPI.on_event` y `anyio.abc.BlockingPortal`; no se modificaron porque son ajenas a H-API-08. No se validó un origen de despliegue real ni se ejecutó Compose o una prueba en navegador; hasta que se configure `API_CORS_ALLOWED_ORIGINS`, el acceso cross-origin queda cerrado por defecto.

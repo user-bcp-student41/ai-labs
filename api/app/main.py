@@ -12,6 +12,23 @@ from fastapi import Body, Depends, FastAPI, File, Header, HTTPException, Query, 
 from fastapi.middleware.cors import CORSMiddleware
 
 LEGACY_SECRET = "WORKSHOP_SECRET_2026"
+API_CORS_ALLOWED_ORIGINS_ENV = "API_CORS_ALLOWED_ORIGINS"
+CORS_ALLOWED_METHODS = ["GET", "POST"]
+CORS_ALLOWED_HEADERS = ["Authorization", "Content-Type"]
+
+
+def _configured_cors_origins() -> list[str]:
+    configured_origins = os.getenv(API_CORS_ALLOWED_ORIGINS_ENV, "")
+    allowed_origins = [
+        origin.strip()
+        for origin in configured_origins.split(",")
+        if origin.strip()
+    ]
+    if "*" in allowed_origins:
+        raise ValueError(
+            f"{API_CORS_ALLOWED_ORIGINS_ENV} must contain explicit origins, not '*'."
+        )
+    return allowed_origins
 
 
 def legacy_identity(authorization: str = Header(default="")) -> dict[str, str]:
@@ -27,6 +44,7 @@ def legacy_identity(authorization: str = Header(default="")) -> dict[str, str]:
 
 
 def create_app(db_path: str | None = None, upload_dir: str | None = None) -> FastAPI:
+    allowed_origins = _configured_cors_origins()
     selected_db = db_path or os.getenv("WORKSHOP_DB_PATH", "./data/workshop.db")
     selected_uploads = upload_dir or os.getenv("WORKSHOP_UPLOAD_DIR", "./uploads")
     Path(selected_db).parent.mkdir(parents=True, exist_ok=True)
@@ -47,10 +65,10 @@ def create_app(db_path: str | None = None, upload_dir: str | None = None) -> Fas
     app.state.upload_dir = selected_uploads
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_origins=allowed_origins,
+        allow_credentials=False,
+        allow_methods=CORS_ALLOWED_METHODS,
+        allow_headers=CORS_ALLOWED_HEADERS,
     )
 
     def as_task(row: sqlite3.Row) -> dict[str, Any]:

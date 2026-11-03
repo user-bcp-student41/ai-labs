@@ -8,6 +8,14 @@ Este documento describe los cinco endpoints actuales de ReqFlow API. Los ejemplo
 - **Acordado:** no había un contrato previo en `docs/ENDPOINTS.md`. Se conserva el formato de respuestas exitosas para solicitudes válidas. La política seleccionada para cargas acepta `.txt`, `.md` y `.pdf`, con máximo de 5 MiB.
 - **Riesgos pendientes:** H-API-01 y H-API-02 están pendientes: el token actual es Base64 legacy sin firma, por lo que la identidad usada por la autorización no es confiable. H-API-04 está pendiente: un archivo puede sobrescribir otro si comparte nombre en el directorio de uploads.
 
+## CORS de navegador
+
+- Los orígenes permitidos se configuran mediante `API_CORS_ALLOWED_ORIGINS`, como una lista separada por comas de orígenes exactos (esquema, host y puerto).
+- Si la variable no está configurada o está vacía en la aplicación, no se autoriza ningún origen cross-origin. Compose usa `http://localhost:4200` como valor local predeterminado solo cuando la variable no está definida; se puede sobrescribir por entorno o dejar explícitamente vacía para desactivar CORS. El valor `*` se rechaza.
+- Se permiten los métodos `GET` y `POST`, y los encabezados `Authorization` y `Content-Type`. Las solicitudes con credenciales cross-origin no están habilitadas.
+- En Compose, la variable se pasa al contenedor de API. El origen local predeterminado no debe usarse como sustituto de los orígenes reales de otros entornos.
+- CORS es una política del navegador y no reemplaza la autenticación ni la autorización de los endpoints.
+
 ## Autenticación común
 
 Todos los endpoints requieren el header `Authorization` en el formato observado `Bearer <token>`. Si falta o el token no se acepta, la respuesta es `401` con `{"detail":"Invalid token"}`. El mecanismo actual consume un token Base64 legacy; todavía no hay un contrato JWT coordinado. No se publica un token válido ni su secreto en estos ejemplos. La integración con un emisor JWT y un ejemplo autenticado ejecutable quedan como preguntas abiertas de H-API-01.

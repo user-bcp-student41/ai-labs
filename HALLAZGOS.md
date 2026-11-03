@@ -35,3 +35,29 @@ Se conservan los endpoints, métodos, códigos y formas de respuesta existentes 
 - `POST /api/requirements` conserva el campo multipart y los campos de respuesta para archivos permitidos; admite `.txt`, `.md` y `.pdf` hasta 5 MiB. Nombres con separadores/ruta, otras extensiones y archivos mayores se rechazan, pero nombres repetidos pueden sobrescribir archivos en el directorio compartido. `api/app/main.py:23-27`, `api/app/main.py:69-74`, `api/app/service.py:18-25`, `api/app/service.py:94-112`
 - `GET /api/backend-health` conserva `requestedBy`, `status` y `body`; ante errores mantiene `status: 0` pero devuelve mensaje genérico y registra el detalle en el servidor. `api/app/main.py:76-79`, `api/app/service.py:140-161`
 - El token sigue siendo el formato Base64 legado hasta coordinar el emisor JWT; no se presenta H-API-01 como resuelto. `api/app/security.py:9`, `api/app/security.py:17-29`
+
+## Candidatos de discovery — API
+
+### H-API-08 — CORS con cualquier origen y credenciales
+- Estado: Aprobado por el usuario; implementado, pendiente de revisión humana.
+- Evidencia: `api/app/main.py:15-30`, `api/app/main.py:68-71`, `compose.yaml:10`, `api/tests/test_api.py:62-129`.
+- Impacto: una política sin lista explícita de orígenes de confianza puede habilitar acceso cross-origin más amplio del previsto. El impacto efectivo depende de cómo el cliente envía sus credenciales y de los orígenes que deban estar autorizados.
+- Prioridad propuesta: Media.
+- Contrato potencialmente afectado: política CORS y acceso del frontend a la API desde el navegador.
+- Cómo validarlo: `python tools/lab.py test api` — 7 pruebas pasaron; cobertura global de `app`: 91.94%. Se verificaron denegación por defecto, origen local configurado, origen no listado, métodos/encabezados y rechazo de `*`. Los orígenes para entornos distintos al Compose local y la revisión humana siguen pendientes.
+
+### H-API-09 — Límite de carga aplicado después del parseo multipart
+- Estado: CANDIDATO
+- Evidencia: `api/app/main.py:67-74` recibe un `UploadFile` multipart antes de llamar al servicio; `api/app/service.py:129-139` aplica el límite durante la lectura de ese archivo. La prueba existente verifica el rechazo posterior de un archivo apenas mayor al límite: `api/tests/test_api.py:277-287`.
+- Impacto: el parseo multipart puede consumir almacenamiento temporal antes de que el límite del servicio responda con rechazo; cargas grandes o concurrentes podrían presionar ese almacenamiento. La exposición depende también de los límites configurados en el servidor o infraestructura externa, que no se verifican aquí.
+- Prioridad propuesta: Media.
+- Contrato potencialmente afectado: límite de tamaño y disponibilidad del endpoint `POST /api/requirements`.
+- Cómo validarlo: probar cargas multipart grandes y concurrentes en un entorno aislado, observar el almacenamiento temporal hasta recibir la respuesta y confirmar si existe un límite de cuerpo efectivo antes del parseo.
+
+### H-API-10 — La imagen no declara un usuario no privilegiado
+- Estado: CANDIDATO
+- Evidencia: `api/Dockerfile:1-9` usa una imagen base y define el comando de inicio, pero no declara `USER`.
+- Impacto: si el runtime no establece un usuario distinto, el proceso de la API podría ejecutarse con el usuario predeterminado de la imagen base, ampliando el impacto de una vulneración del proceso dentro del contenedor.
+- Prioridad propuesta: Media.
+- Contrato potencialmente afectado: configuración de ejecución y privilegios del contenedor de API.
+- Cómo validarlo: construir la imagen y comprobar el usuario efectivo con `docker run --rm <imagen> id`; contrastarlo con cualquier sobreescritura de usuario aplicada por el entorno de ejecución.

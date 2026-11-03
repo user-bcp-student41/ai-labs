@@ -4,7 +4,6 @@ Trabaja desde la raiz de ai-labs, el unico repositorio Git. Aplica las instrucci
 
 Ejecuta Git desde la raiz y las pruebas con el directorio del componente. Desde la raiz puedes usar python tools/lab.py test auth, api o web, segun corresponda. Guarda evidencias generales en la raiz, con componente e IDs H-AUTH-NN, H-API-NN o H-WEB-NN; conserva las secciones existentes. Crea cada entregable cuando lo pida su paso.
 
-En el Dia 1 usa solo ramas locales: day1/prompting, main y checkpoint/day1. Conserva origin creado al clonar tu copia del template; no crees otros remotos, tags ni PR y no hagas push durante el Dia 1. La revision y aprobacion humanas y las pruebas reales preceden a la integracion y al checkpoint; no las inventes. Las referencias a PR y controles remotos de las secciones originales son generales: conserva su configuracion, pero en el Dia 1 prevalece este cierre local.
 
 ## auth
 
