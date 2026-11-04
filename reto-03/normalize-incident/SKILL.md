@@ -19,7 +19,7 @@ description: "Normaliza logs de incidencias bancarias ficticias a objetos JSON v
 5. Deduplica por `event_id`: `occurrences` cuenta eventos de error distintos, no líneas repetidas ni reintentos. Si un mismo `event_id` aparece con datos contradictorios, descríbelo en `missing_data` y solicita revisión humana.
 6. Si falta `case_id`, `service`, `error_code`, `correlation_id`, `event_id` o una fecha interpretable en un error, no inventes valores ni prepares una incidencia registrable para ese grupo. Explica qué dato falta. Puedes preparar otros grupos completos.
 7. Convierte `first_seen` y `last_seen` desde la zona horaria declarada a UTC, con formato `YYYY-MM-DDTHH:mm:ssZ`. Usa el primer y último evento `ERROR` distinto del grupo.
-8. Redacta los valores de `user`, `password` y `token` como `[REDACTADO]` en toda evidencia o extracto. Conserva identificadores técnicos de correlación, evento y movimiento.
+8. Redacta los valores de `user`, `password` y `token` como `[REDACTADO]` en toda evidencia o extracto. Conserva identificadores técnicos de correlación, evento y movimiento. 
 9. Si hay de 2 a mas ocurrencias catalogalo como P2, de lo contrario usa P1.
 10. Escribe `summary` como descripción del fallo observado y `impact` como alcance de la operación afectada. No afirmes causa raíz, caída general ni resolución si el log no lo demuestra. `recommended_action` debe proponer una comprobación humana; nunca ejecutar cambios, transferencias, devoluciones ni bloqueos.
 11. Devuelve un objeto JSON por cada grupo completo, cada uno en su propio bloque JSON. Si hay más de un grupo, no los envuelvas en un objeto o arreglo adicional. Si faltan datos, presenta el bloqueo claramente y no inventes un objeto registrable.
@@ -57,6 +57,7 @@ El archivo debe generarse en esta ruta docs/reto-incidencias/caso-02/incidencia.
 ## Constraints
 - No incluyas datos sensibles o credenciales en el formato de salida.
 - Conserva los codigos HTTP relevantes.
+- Considera [REDACTADO] para cualquier valor sensible como `user`, `password` y `token`.
 
 
 Validaciones:
