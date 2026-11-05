@@ -3,9 +3,8 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "workshop-login-frontend": {
+    "frontend-angular": {
       "projectType": "application",
-      "schematics": {},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -13,25 +12,19 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/workshop-login-frontend",
+            "outputPath": "dist/frontend-angular",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
-            "assets": [{"glob": "**/*", "input": "public"}],
             "styles": ["src/styles.css"]
           },
           "configurations": {
             "production": {
-              "budgets": [
-                {"type": "initial", "maximumWarning": "500kB", "maximumError": "1MB"},
-                {"type": "anyComponentStyle", "maximumWarning": "4kB", "maximumError": "8kB"}
-              ],
               "outputHashing": "all"
             },
             "development": {
               "optimization": false,
-              "extractLicenses": false,
               "sourceMap": true
             }
           },
@@ -40,13 +33,16 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
-            "production": {"buildTarget": "workshop-login-frontend:build:production"},
-            "development": {"buildTarget": "workshop-login-frontend:build:development"}
+            "production": {
+              "buildTarget": "frontend-angular:build:production"
+            },
+            "development": {
+              "buildTarget": "frontend-angular:build:development"
+            }
           },
           "defaultConfiguration": "development"
         }
       }
     }
-  },
-  "cli": {"analytics": false}
+  }
 }
